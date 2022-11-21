@@ -7,6 +7,7 @@ use App\Models\User;
 use Carbon\Exceptions\Exception;
 use Google\Service\Storage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 
 class GoogleDriveController extends Controller
@@ -38,12 +39,11 @@ class GoogleDriveController extends Controller
         return view('welcome', compact('images'));
     }
 
-    public function loginAlert(Request $request)
-    {
-    }
-
     public function delete($id, Request $request)
     {
+
+        $users = DB::table('users')->first();
+        $d =  json_decode($users->access_token);
         $google_oauthV2 = new \Google_Service_Oauth2($this->gClient);
         if ($request->get('code')) {
             $this->gClient->authenticate($request->get('code'));
@@ -66,7 +66,7 @@ class GoogleDriveController extends Controller
             curl_setopt($ch, CURLOPT_ENCODING, 'gzip, deflate');
 
             $headers = array();
-            $headers[] = 'Authorization: Bearer ' . $user->access_token;
+            $headers[] = 'Authorization: Bearer ' . $d->access_token;
             $headers[] = 'Accept: application/json';
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
